@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Disney Cartoon Hub — Pixar & More</title>
+<style>
+  :root{
+    --bg1:#a5d8ff; --bg2:#ffd6e0; --bg3:#fff3b0;
+    --card:#ffffff; --muted:#666;
+    --accent1:#ff6f91; --accent2:#6fc3ff;
+    --glass: rgba(255,255,255,0.6);
+    --shadow: 0 10px 25px rgba(0,0,0,0.15);
+    --radius:18px;
+    --glass-2: rgba(255,255,255,0.85);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
+    background-size:400% 400%;
+    animation:bgShift 18s ease-in-out infinite;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+  @keyframes bgShift{
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+  }
+
+  /* App Shell */
+  .app {
+    width:100%;
+    max-width:1100px;
+    margin:32px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.95));
+    border-radius:28px;
+    box-shadow: var(--shadow);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* Top header */
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 22px;
+    background: linear-gradient(90deg,var(--accent2),var(--accent1));
+    color:white;
+  }
+  .brand{
+    display:flex; gap:12px; align-items:center;
+    font-weight:700; letter-spacing:0.2px; font-size:18px;
+  }
+  .brand .logo{
+    font-size:28px; transform:translateY(-2px);
+  }
+  .header-actions{display:flex; gap:12px; align-items:center;}
+
+  /* Pages */
+  .view {display:none; padding:28px; min-height:520px;}
+  .view.active{display:block}
+
+  /* Card base */
+  .card {
+    background:var(--card);
+    border-radius:var(--radius);
+    box-shadow:0 8px 20px rgba(0,0,0,0.08);
+  }
+
+  /* Auth forms */
+  .auth-wrap{ display:flex; align-items:center; justify-content:center; min-height:520px;}
+  .auth-card{
+    width:340px; padding:26px; text-align:center;
+    border-radius:18px; background: linear-gradient(180deg,var(--glass),var(--glass-2)); backdrop-filter: blur(6px);
+    box-shadow: 0 8px 30px rgba(20,20,20,0.08);
+  }
+  .mascot { font-size:48px; display:block; margin-bottom:10px; animation:wave 3s infinite; }
+  @keyframes wave{
+    0%{transform:rotate(0)}
+    25%{transform:rotate(12deg)}
+    50%{transform:rotate(-12deg)}
+    75%{transform:rotate(8deg)}
+    100%{transform:rotate(0)}
+  }
+  h1{margin:4px 0 14px; font-size:20px; color:#333;}
+  input, select {
+    width:100%; padding:12px 10px; margin:10px 0; border-radius:12px; border:1px solid #e6e6e6; font-size:14px;
+    outline:none; transition:box-shadow .18s, transform .12s;
+  }
+  input:focus, select:focus { box-shadow: 0 6px 18px rgba(111,195,255,0.18); transform:translateY(-2px); border-color:var(--accent2); }
+  .btn {
+    display:inline-block; width:100%; padding:12px; margin-top:8px; border-radius:12px; border:0;
+    background:linear-gradient(90deg,var(--accent1),var(--accent2)); color:white; font-weight:700; cursor:pointer;
+    transform:translateZ(0); transition:transform .12s, box-shadow .12s;
+  }
+  .btn:hover{ transform:translateY(-3px); box-shadow:0 8px 20px rgba(0,0,0,0.12); }
+  .link{ color:var(--accent1); cursor:pointer; font-weight:600; }
+
+  /* Hub layout */
+  .hub-top {
+    display:flex; gap:16px; align-items:center; justify-content:space-between; margin-bottom:18px;
+  }
+  .search {
+    flex:1; display:flex; gap:10px; align-items:center;
+  }
+  .search input{ flex:1; padding:12px; border-radius:12px; border:1px solid #eee; }
+  .filters{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .chip { padding:8px 12px; border-radius:999px; background:rgba(0,0,0,0.06); cursor:pointer; font-weight:600; }
+  .chip.active { background:linear-gradient(90deg,var(--accent2),var(--accent1)); color:white; box-shadow:0 6px 18px rgba(0,0,0,0.12); }
+
+  /* Grid of characters */
+  .grid {
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:18px;
+  }
+  .char {
+    padding:12px; text-align:center; border-radius:14px; cursor:pointer; transition:transform .14s, box-shadow .12s;
+    background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0.95));
+    box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+  }
+  .char:hover{ transform:translateY(-6px); box-shadow: 0 14px 30px rgba(0,0,0,0.12); }
+  .avatar {
+    width:86px; height:86px; border-radius:999px; display:flex; align-items:center; justify-content:center;
+    font-size:36px; margin:6px auto 10px; background:linear-gradient(90deg,var(--accent2),var(--accent1)); color:white;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+  }
+  .char h4{ margin:8px 0 6px; font-size:15px; color:#222; }
+  .char p{ margin:0; font-size:13px; color:var(--muted); }
+
+  /* Modal profile */
+  .overlay{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.45); padding:20px; z-index:120; }
+  .overlay.active{ display:flex; }
+  .profile {
+    width:100%; max-width:760px; border-radius:18px; background:linear-gradient(180deg, #fff, #fbfbff); padding:20px; box-shadow:0 18px 80px rgba(10,10,40,0.4);
+    display:flex; gap:18px; align-items:flex-start;
+  }
+  .profile .left { width:220px; text-align:center; }
+  .profile .left .avatar { width:140px; height:140px; font-size:54px; margin:0 auto 10px; }
+  .profile .right { flex:1; }
+  .profile h2{ margin:0 0 6px; }
+  .meta{ color:var(--muted); margin-bottom:12px; }
+  .close { border:0; background:transparent; font-size:22px; cursor:pointer; color:var(--muted); }
+
+  /* footer */
+  footer{ padding:12px 22px; text-align:center; color:var(--muted); font-size:13px; background:transparent; }
+
+  /* responsive */
+  @media (max-width:720px){
+    .profile{ flex-direction:column; align-items:center; text-align:center; }
+    .profile .left{ width:100% }
+  }
+</style>
+</head>
+<body>
+<div class="app card" role="application" aria-label="Disney Cartoon Hub">
+  <header>
+    <div class="brand"><span class="logo">🏰</span><span>Disney Cartoon Hub</span></div>
+    <div class="header-actions">
+      <div style="font-weight:600;opacity:.95" id="header-user">Guest</div>
+      <button class="btn" id="signoutBtn" style="width:auto;padding:9px 12px;display:none">Sign Out</button>
+    </div>
+  </header>
+
+  <!-- LOGIN / SIGNUP / HUB VIEWS -->
+  <main style="padding:20px 28px; flex:1;">
+    <!-- LOGIN VIEW -->
+    <section id="loginView" class="view active">
+      <div class="auth-wrap">
+        <div class="auth-card card">
+          <div class="mascot">🐭</div>
+          <h1>Welcome back!</h1>
+          <input id="loginEmail" type="email" placeholder="Email" autocomplete="username">
+          <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password">
+          <button class="btn" onclick="doLogin()">🚀 Sign In</button>
+          <p style="margin-top:12px;color:var(--muted)">Don't have an account? <span class="link" onclick="showSignUp()">Create one</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIGN UP VIEW -->
+    <section id="signupView" class="view">
+      <div class="auth-wrap">
+        <div class="auth-card card">
+          <div class="mascot">🌟</div>
+          <h1>Create an account</h1>
+          <input id="signupName" type="text" placeholder="Full name">
+          <input id="signupEmail" type="email" placeholder="Email">
+          <input id="signupPassword" type="password" placeholder="Password">
+          <button class="btn" onclick="doSignUp()">✨ Sign Up</button>
+          <p style="margin-top:12px;color:var(--muted)">Already a member? <span class="link" onclick="showLogin()">Sign in</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HUB VIEW (Disney cartoon grid) -->
+    <section id="hubView" class="view">
+      <div class="hub-top">
+        <div class="search card" style="padding:10px;">
+          <input id="searchInput" type="search" placeholder="Search characters (e.g., Mickey, Simba, Elsa...)" oninput="renderGrid()">
+        </div>
+        <div class="filters">
+          <div class="chip active" data-cat="all" onclick="toggleFilter(this)">All</div>
+          <div class="chip" data-cat="classic" onclick="toggleFilter(this)">Classic</div>
+          <div class="chip" data-cat="princess" onclick="toggleFilter(this)">Princess</div>
+          <div class="chip" data-cat="pixar" onclick="toggleFilter(this)">Pixar</div>
+          <div class="chip" data-cat="starwars" onclick="toggleFilter(this)">Star Wars</div>
+          <div class="chip" data-cat="marvel" onclick="toggleFilter(this)">Marvel</div>
+          <div class="chip" data-cat="animals" onclick="toggleFilter(this)">Animals</div>
+        </div>
+      </div>
+
+      <div id="grid" class="grid" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer>Made with ✨ Disney magic — explore characters, click cards for profiles.</footer>
+</div>
+
+<!-- PROFILE MODAL -->
+<div id="overlay" class="overlay" role="dialog" aria-hidden="true">
+  <div class="profile card" role="document">
+    <div class="left">
+      <div id="profAvatar" class="avatar">🐭</div>
+      <div id="profName" style="font-weight:800;font-size:18px;margin-top:10px">Mickey Mouse</div>
+      <div class="meta" id="profTag">Classic · 1928</div>
+      <button class="btn" onclick="closeProfile()" style="width:140px;margin-top:10px">Close</button>
+    </div>
+    <div class="right">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <h2 id="profTitle">Mickey Mouse</h2>
+        <button class="close" onclick="closeProfile()" aria-label="Close profile">✕</button>
+      </div>
+      <div id="profBio" style="color:var(--muted);margin-bottom:12px">A cheerful mouse who loves adventure.</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div class="card" style="padding:12px;border-radius:12px">Movie: <strong id="profMovie">Steamboat Willie</strong></div>
+        <div class="card" style="padding:12px;border-radius:12px">Famous Quote: <strong id="profQuote">"Oh boy!"</strong></div>
+        <div class="card" style="padding:12px;border-radius:12px">First Appearance: <strong id="profYear">1928</strong></div>
+      </div>
+
+      <hr style="margin:16px 0 12px; border:none; height:1px; background:linear-gradient(90deg,#eee,#fff)">
+
+      <h4 style="margin:0 0 8px">Friends & related</h4>
+      <div id="related" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- sample character data (emoji placeholders used for avatar) ---------- */
+const CHARACTERS = [
+  { id:'mickey', name:'Mickey Mouse', emoji:'🐭', category:['classic'], movie:'Steamboat Willie', year:1928, quote:'Oh boy!', bio:'The cheerful face of Disney — adventurous and optimistic.' },
+  { id:'minnie', name:'Minnie Mouse', emoji:'🎀', category:['classic'], movie:'Steamboat Willie', year:1928, quote:'Yoo-hoo!', bio:'Mickey’s kind and fashionable partner.' },
+  { id:'donald', name:'Donald Duck', emoji:'🦆', category:['classic','animals'], movie:'The Wise Little Hen', year:1934, quote:"Aw, phooey!", bio:'Short-tempered but lovable duck.' },
+  { id:'simba', name:'Simba', emoji:'🦁', category:['animals'], movie:'The Lion King', year:1994, quote:'Remember who you are.', bio:'Lion prince who grows into his destiny.' },
+  { id:'nala', name:'Nala', emoji:'🐯', category:['animals'], movie:'The Lion King', year:1994, quote:'You have to take your place.', bio:'Simba’s brave childhood friend and queen.' },
+  { id:'elsa', name:'Elsa', emoji:'❄️', category:['princess'], movie:'Frozen', year:2013, quote:'Let it go!', bio:'Queen of Arendelle with magical ice powers.' },
+  { id:'anna', name:'Anna', emoji:'🌸', category:['princess'], movie:'Frozen', year:2013, quote:'I will risk everything.', bio:'Warm-hearted and reckless sister to Elsa.' },
+  { id:'ariel', name:'Ariel', emoji:'🧜‍♀️', category:['princess','animals'], movie:'The Little Mermaid', year:1989, quote:'Part of your world', bio:'Curious mermaid who dreams of life on land.' },
+  { id:'woody', name:'Woody', emoji:'🤠', category:['pixar'], movie:'Toy Story', year:1995, quote:'There’s a snake in my boot!', bio:'Loyal cowboy toy and the leader of the toys.' },
+  { id:'buzz', name:'Buzz Lightyear', emoji:'🚀', category:['pixar'], movie:'Toy Story', year:1995, quote:'To infinity and beyond!', bio:'Space ranger action figure with big heart.' },
+  { id:'nemo', name:'Nemo', emoji:'🐠', category:['pixar','animals'], movie:'Finding Nemo', year:2003, quote:'Just keep swimming', bio:'Curious clownfish who gets lost in the ocean.' },
+  { id:'dory', name:'Dory', emoji:'🐟', category:['pixar'], movie:'Finding Nemo', year:2003, quote:'I forget things', bio:'Lovable fish with short-term memory loss.' },
+  { id:'lightning', name:'Lightning McQueen', emoji:'🏎️', category:['pixar'], movie:'Cars', year:2006, quote:'Ka-chow!', bio:'Ambitious racecar who learns about friendship.' },
+  { id:'genie', name:'Genie', emoji:'🧞‍♂️', category:['classic'], movie:'Aladdin', year:1992, quote:'Phenomenal cosmic powers!', bio:'Exuberant wish-granting spirit.' },
+  { id:'stitch', name:'Stitch', emoji:'👾', category:['classic','animals'], movie:'Lilo & Stitch', year:2002, quote:'Ohana means family', bio:'Chaotic but lovable alien experiment.' },
+  { id:'ironman', name:'Iron Man', emoji:'🤖', category:['marvel'], movie:'Iron Man', year:2008, quote:'I am Iron Man', bio:'Genius billionaire in powered armor.' },
+  { id:'yoda', name:'Yoda', emoji:'🧙‍♂️', category:['starwars'], movie:'The Empire Strikes Back', year:1980, quote:'Do, or do not. There is no try.', bio:'Wise Jedi master.' },
+  { id:'bambi', name:'Bambi', emoji:'🦌', category:['animals'], movie:'Bambi', year:1942, quote:'If you can’t say somethin’ nice…', bio:'A young deer growing up in the forest.' },
+  { id:'winnie', name:'Winnie the Pooh', emoji:'🍯', category:['classic','animals'], movie:'The Many Adventures of Winnie the Pooh', year:1977, quote:'Oh bother', bio:'Honey-loving, kind-hearted bear.' },
+  // add more as desired...
+];
+
+/* ---------- simple app state ---------- */
+let state = {
+  user: null,
+  activeFilter: 'all',
+  search: '',
+};
+
+/* ---------- util / rendering ---------- */
+const gridEl = document.getElementById('grid');
+const headerUser = document.getElementById('header-user');
+const signoutBtn = document.getElementById('signoutBtn');
+
+function renderGrid(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  state.search = q;
+  const filter = state.activeFilter;
+  const list = CHARACTERS.filter(ch => {
+    if(filter !== 'all' && !ch.category.includes(filter)) return false;
+    if(!q) return true;
+    return ch.name.toLowerCase().includes(q) || (ch.movie && ch.movie.toLowerCase().includes(q));
+  });
+  gridEl.innerHTML = '';
+  if(list.length === 0) {
+    gridEl.innerHTML = '<div style="color:var(--muted);padding:14px">No characters match your search.</div>';
+    return;
+  }
+  for(const ch of list){
+    const el = document.createElement('div');
+    el.className = 'char card';
+    el.tabIndex = 0;
+    el.setAttribute('role','button');
+    el.setAttribute('aria-label','Open profile for ' + ch.name);
+    el.innerHTML = `
+      <div class="avatar">${ch.emoji}</div>
+      <h4>${ch.name}</h4>
+      <p>${ch.movie} • ${ch.year}</p>
+    `;
+    el.addEventListener('click', () => openProfile(ch.id));
+    el.addEventListener('keydown', (e) => { if(e.key==='Enter') openProfile(ch.id); });
+    gridEl.appendChild(el);
+  }
+}
+
+/* ---------- filters ---------- */
+function toggleFilter(el){
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  state.activeFilter = el.dataset.cat;
+  renderGrid();
+}
+
+/* ---------- profile modal ---------- */
+const overlay = document.getElementById('overlay');
+function openProfile(id){
+  const ch = CHARACTERS.find(c => c.id === id);
+  if(!ch) return;
+  document.getElementById('profAvatar').textContent = ch.emoji;
+  document.getElementById('profName').textContent = ch.name;
+  document.getElementById('profTag').textContent = ch.category.map(s=>capitalize(s)).join(' · ');
+  document.getElementById('profTitle').textContent = ch.name;
+  document.getElementById('profBio').textContent = ch.bio;
+  document.getElementById('profMovie').textContent = ch.movie || '—';
+  document.getElementById('profQuote').textContent = ch.quote || '—';
+  document.getElementById('profYear').textContent = ch.year || '—';
+
+  // related: show up to 5 other characters sharing categories
+  const related = CHARACTERS.filter(x => x.id !== ch.id && x.category.some(cat => ch.category.includes(cat))).slice(0,6);
+  const relEl = document.getElementById('related');
+  relEl.innerHTML = '';
+  for(const r of related){
+    const d = document.createElement('div');
+    d.className = 'char';
+    d.style.width='110px';
+    d.innerHTML = `<div class="avatar" style="width:48px;height:48px;font-size:22px">${r.emoji}</div><div style="font-weight:700;font-size:13px">${r.name}</div>`;
+    d.addEventListener('click', () => openProfile(r.id));
+    relEl.appendChild(d);
+  }
+
+  overlay.classList.add('active');
+  overlay.setAttribute('aria-hidden','false');
+}
+function closeProfile(){
+  overlay.classList.remove('active');
+  overlay.setAttribute('aria-hidden','true');
+}
+function capitalize(s){ return s[0].toUpperCase()+s.slice(1); }
+
+/* ---------- auth (demo only, no server) ---------- */
+function showView(id){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showSignUp(){ showView('signupView'); }
+function showLogin(){ showView('loginView'); }
+function showHub(){ showView('hubView'); }
+
+/* fake sign up / login */
+function doSignUp(){
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  if(!name || !email) { alert('Please provide name and email.'); return; }
+  state.user = { name, email };
+  afterAuth();
+}
+function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  if(!email){ alert('Enter your email.'); return; }
+  state.user = { name: email.split('@')[0], email };
+  afterAuth();
+}
+function afterAuth(){
+  headerUser.textContent = state.user?.name || 'You';
+  signoutBtn.style.display = 'inline-block';
+  showHub();
+  renderGrid();
+}
+/* sign out */
+signoutBtn.addEventListener('click', ()=> {
+  state.user = null;
+  headerUser.textContent = 'Guest';
+  signoutBtn.style.display = 'none';
+  showLogin();
+});
+
+/* keyboard/escape to close profile */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape') closeProfile();
+});
+
+/* initial render */
+renderGrid();
+</script>
+</body>
+</html>
